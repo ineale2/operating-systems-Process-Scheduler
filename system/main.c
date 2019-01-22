@@ -9,7 +9,9 @@ process	main(void)
 
 	recvclr();
 	pid32 pid = create(shell, 8192, 50, "shell", 1, CONSOLE);
+	#if XTEST
 	kprintf("Spawning new shell with PID = %d...\n", pid);
+	#endif
 	resume(pid);
 
 	/* Wait for shell to exit and recreate it */
@@ -19,7 +21,9 @@ process	main(void)
 		sleepms(200);
 		kprintf("\n\nMain process recreating shell\n\n");
 		pid = create(shell, 4096, 20, "shell", 1, CONSOLE);
+		#if XTEST
 		kprintf("Spawning new shell with PID = %d...\n", pid);
+		#endif
 		resume(pid);
 	}
 	return OK;

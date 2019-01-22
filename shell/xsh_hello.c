@@ -1,18 +1,15 @@
-/* hello.c - hello */
-/* Lab0 Code: 1/21/2019 */
+/* xsh_hello.c - xsh_hello */
 
 #include <xinu.h>
+#include <stdio.h>
 
 /*------------------------------------------------------------------------
- *  hello - print hello  
+ * xhs_hello - calls the system call hello
  *------------------------------------------------------------------------
  */
-syscall	hello(
-	void
-	)
+shellcmd xsh_hello(int nargs, char *args[])
 {
-#if XTEST
-	kprintf("Hello system call invoked\n");
-#endif
+	hello();	
+
 	return 0;
 }

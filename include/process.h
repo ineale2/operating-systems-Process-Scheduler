@@ -1,5 +1,9 @@
 /* process.h - isbadpid */
 
+/* Helpful control macros for debugging and printing */
+#define XTEST		1
+#define XDEBUG 		0
+
 /* Maximum number of processes in the system */
 
 #ifndef NPROC
