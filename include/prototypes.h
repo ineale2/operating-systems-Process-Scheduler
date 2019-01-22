@@ -30,6 +30,9 @@ extern	void	clkinit(void);
 /* in file clkdisp.S */
 extern	void	clkdisp(void);
 
+/*Lab0: in file hello.c */
+extern syscall hello(void);
+
 /* in file close.c */
 extern	syscall	close(did32);
 
