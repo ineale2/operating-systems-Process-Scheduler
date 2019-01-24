@@ -11,8 +11,6 @@ syscall	hello(
 	void
 	)
 {
-#if XTEST
-	kprintf("Hello system call invoked\n");
-#endif
+	XTEST_KPRINTF("Hello system call invoked\n");
 	return 0;
 }

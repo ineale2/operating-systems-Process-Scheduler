@@ -4,6 +4,19 @@
 #define XTEST		1
 #define XDEBUG 		0
 
+#if XTEST
+#define XTEST_KPRINTF(...) kprintf(__VA_ARGS__)
+#else
+#define XTEST_KPRINTF(...) 
+#endif
+
+#if XDEBUG
+#define XDEBUG_KPRINTF(...) kprintf(__VA_ARGS__)
+#else
+#define XDEBUG_KPRINTF(...)
+#endif
+
+
 /* Maximum number of processes in the system */
 
 #ifndef NPROC
