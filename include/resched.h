@@ -31,7 +31,7 @@ struct groupPriority 	{
 
 
 extern	struct	defer	Defer;
-extern  struct  groupPriority grp_pri = {10, 10, 10, 10};
+extern  struct  groupPriority grp_pri;
 //agingSched implements the agingScheduler algorithim and selects one of the two groups (SRT or TSS) to schedule
 //returns true to schedule SRT, false to schedule TSS
 bool8 agingSched(void);
@@ -43,4 +43,7 @@ pid32 schedulerSRT(void);
 pid32 schedulerTSS(void);
 
 //Computes and assigns the burst time of the process specified in the argument
-void computeBurst(struct procent const *ptold);
+void computeBurst(pid32);
+
+//Sets the start time variables for the process specified in the argument
+void setStartTime(pid32);

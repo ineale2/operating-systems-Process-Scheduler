@@ -178,6 +178,13 @@ static	void	sysinit()
 
 	Defer.ndefers = 0;
 
+	/* Initialize the process priority global */
+	grp_pri.TSS_pri = 10;
+	grp_pri.SRT_pri = 10;
+	grp_pri.TSS_init_pri = 10;
+	grp_pri.SRT_init_pri = 10;
+	
+
 	/* Initialize process table entries free */
 
 	for (i = 0; i < NPROC; i++) {
@@ -186,6 +193,9 @@ static	void	sysinit()
 		prptr->prname[0] = NULLCH;
 		prptr->prstkbase = NULL;
 		prptr->prprio = 0;
+		prptr->prev_burst = 0;
+		prptr->prev_exp_burst = 0;
+		prptr->sched_alg = 0; 
 	}
 
 	/* Initialize the Null process entry */	
@@ -196,8 +206,10 @@ static	void	sysinit()
 	strncpy(prptr->prname, "prnull", 7);
 	prptr->prstkbase = getstk(NULLSTK);
 	prptr->prstklen = NULLSTK;
-	prptr->prstkptr = 0;
+	prptr->prstkptr   = 0;
+	prptr->sched_alg  = TSSCHED;
 	currpid = NULLPROC;
+	//More initialization after clkinit()
 	
 	/* Initialize semaphores */
 
@@ -219,6 +231,9 @@ static	void	sysinit()
 	/* Initialize the real time clock */
 
 	clkinit();
+	//Now finish the NULLPROC init
+	prptr->tstart_ms  = count1000;
+	prptr->tstart_sec = clktime;
 
 	for (i = 0; i < NDEVS; i++) {
 		init(i);

@@ -2,6 +2,7 @@
 
 #include <xinu.h>
 
+struct groupPriority grp_pri;
 /*------------------------------------------------------------------------
  *  chprio  -  Change the scheduling priority of a process
  *------------------------------------------------------------------------

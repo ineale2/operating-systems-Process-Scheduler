@@ -1,6 +1,7 @@
 /*  main.c  - main */
 
 #include <xinu.h>
+#include <test_lab1.h>
 
 process	main(void)
 {
@@ -12,6 +13,7 @@ process	main(void)
 	XTEST_KPRINTF("Spawning new shell with PID = %d...\n", pid);
 	resume(pid);
 
+	create(test_lab1, 8192, SRTIME, 50, "srt_test", 2);
 	/* Wait for shell to exit and recreate it */
 
 	while (TRUE) {

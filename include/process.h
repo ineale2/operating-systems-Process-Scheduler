@@ -2,7 +2,7 @@
 
 /* Helpful control macros for debugging and printing */
 #define XTEST		1
-#define XDEBUG 		0
+#define XDEBUG 		1
 
 #if XTEST
 #define XTEST_KPRINTF(...) kprintf(__VA_ARGS__)
@@ -71,7 +71,9 @@ struct procent {		/* Entry in the process table		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
 	uint32 	prev_burst; /*Burst time from last time process was scheduled*/
 	uint32 	prev_exp_burst; /*Expected burst time from last time process was scheduled */
-	int   	sched_alg;	/*Scheduling algorithim for this process: 0->SRT, 1->TSS*/
+	uint32  sched_alg;	/*Scheduling algorithim for this process: use macros TSSCHED and SRTIME*/
+	uint32  tstart_ms;
+	uint32  tstart_sec;
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/
