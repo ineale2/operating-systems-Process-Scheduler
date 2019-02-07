@@ -13,9 +13,10 @@ process	main(void)
 	XTEST_KPRINTF("Spawning new shell with PID = %d...\n", pid);
 	resume(pid);
 
-	create(test_lab1, 8192, SRTIME, 50, "srt_test", 2);
+	resume(create(test_lab1, 8192, SRTIME, 50, "srt_test", 0));
 	/* Wait for shell to exit and recreate it */
 
+	recvclr();
 	while (TRUE) {
 		receive();
 		sleepms(200);

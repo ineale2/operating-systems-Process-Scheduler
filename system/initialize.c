@@ -196,6 +196,7 @@ static	void	sysinit()
 		prptr->prev_burst = 0;
 		prptr->prev_exp_burst = 0;
 		prptr->sched_alg = 0; 
+		prptr->accumFlag = 0;
 	}
 
 	/* Initialize the Null process entry */	
@@ -209,7 +210,6 @@ static	void	sysinit()
 	prptr->prstkptr   = 0;
 	prptr->sched_alg  = TSSCHED;
 	currpid = NULLPROC;
-	//More initialization after clkinit()
 	
 	/* Initialize semaphores */
 
@@ -231,9 +231,6 @@ static	void	sysinit()
 	/* Initialize the real time clock */
 
 	clkinit();
-	//Now finish the NULLPROC init
-	prptr->tstart_ms  = count1000;
-	prptr->tstart_sec = clktime;
 
 	for (i = 0; i < NDEVS; i++) {
 		init(i);

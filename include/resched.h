@@ -45,5 +45,5 @@ pid32 schedulerTSS(void);
 //Computes and assigns the burst time of the process specified in the argument
 void computeBurst(pid32);
 
-//Sets the start time variables for the process specified in the argument
-void setStartTime(pid32);
+void printReadyList(void);
+void printProcTab(int);
