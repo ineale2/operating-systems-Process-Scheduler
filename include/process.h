@@ -16,6 +16,7 @@
 #define XDEBUG_KPRINTF(...)
 #endif
 
+#define ROOT 0
 
 /* Maximum number of processes in the system */
 
@@ -73,6 +74,7 @@ struct procent {		/* Entry in the process table		*/
 	uint32 	prev_exp_burst; /*Expected burst time from last time process was scheduled */
 	uint32  sched_alg;	/*Scheduling algorithim for this process: use macros TSSCHED and SRTIME*/
 	uint32  accumFlag;  /* Set if the process has not yet yieled CPU. Used for burst time computation */
+	int		uid; 		/* process user id */
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

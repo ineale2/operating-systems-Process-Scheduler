@@ -238,22 +238,23 @@ void printProcTab(int print){
 		char *pstate[]	= {		/* names for process states	*/
 			"free ", "curr ", "ready", "recv ", "sleep", "susp ",
 				"wait ", "rtime"};
-		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s\n",
+		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s\n",
 			   "Pid", "Name", "State", "Prio", "Ppid", "Stack Base",
-			   "Stack Ptr", "Stack Size", "burst", "expB");
+			   "Stack Ptr", "Stack Size", "burst", "expB", "uid");
 
-		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s\n",
+		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s\n",
 			   "---", "----------------", "-----", "----", "----",
-			   "----------", "----------", "----------", "-----", "----");
+			   "----------", "----------", "----------", "-----", "----", "---");
 		for (i = 0; i < NPROC; i++) {
 			prptr = &proctab[i];
 			if (prptr->prstate == PR_FREE) {  /* skip unused slots	*/
 				continue;
 			}
-			kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %8d %5d %4d\n",
+			kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %8d %5d %4d %3d\n",
 				i, prptr->prname, pstate[(int)prptr->prstate],
 				prptr->prprio, prptr->prparent, prptr->prstkbase,
-				prptr->prstkptr, prptr->prstklen, prptr->prev_burst, prptr->prev_exp_burst);
+				prptr->prstkptr, prptr->prstklen, prptr->prev_burst,
+				prptr->prev_exp_burst, prptr->uid);
 		}
 	}
 }

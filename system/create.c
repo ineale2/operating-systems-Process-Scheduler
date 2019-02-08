@@ -57,6 +57,9 @@ pid32	create(
 	prptr->prdesc[1] = CONSOLE;
 	prptr->prdesc[2] = CONSOLE;
 
+	/* New process inhereits calling process uid */
+	prptr->uid = proctab[currpid].uid;
+
 	/* Initialize stack as if the process was called		*/
 
 	*saddr = STACKMAGIC;

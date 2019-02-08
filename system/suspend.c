@@ -10,9 +10,10 @@ syscall	suspend(
 	  pid32		pid		/* ID of process to suspend	*/
 	)
 {
-	intmask	mask;			/* Saved interrupt mask		*/
-	struct	procent *prptr;		/* Ptr to process's table entry	*/
-	pri16	prio;			/* Priority to return		*/
+	intmask	mask;				/* Saved interrupt mask						*/
+	struct	procent *prptr;		/* Ptr to process's table entry				*/
+	struct	procent *cprptr;	/* Ptr to current processes's table entry	*/
+	pri16	prio;				/* Priority to return						*/
 
 	mask = disable();
 	if (isbadpid(pid) || (pid == NULLPROC)) {
@@ -23,6 +24,13 @@ syscall	suspend(
 	/* Only suspend a process that is current or ready */
 
 	prptr = &proctab[pid];
+	cprptr = &proctab[currpid];
+	//Only allow non-root users to suspendif uid matches
+	if( (cprptr->uid != ROOT) && (cprptr->uid != prptr->uid) ){
+		restore(mask);
+		return SYSERR;
+	}
+
 	if ((prptr->prstate != PR_CURR) && (prptr->prstate != PR_READY)) {
 		restore(mask);
 		return SYSERR;

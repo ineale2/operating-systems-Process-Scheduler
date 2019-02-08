@@ -13,9 +13,9 @@ process	main(void)
 	XTEST_KPRINTF("Spawning new shell with PID = %d...\n", pid);
 	resume(pid);
 
-	resume(create(test_lab1, 8192, SRTIME, 50, "srt_test", 0));
+	resume(create(test_uid, 8192, SRTIME, 50, "test_uid", 0));
 	/* Wait for shell to exit and recreate it */
-
+/*
 	recvclr();
 	while (TRUE) {
 		receive();
@@ -25,6 +25,7 @@ process	main(void)
 		XTEST_KPRINTF("Spawning new shell with PID = %d...\n", pid);
 		resume(pid);
 	}
+*/
 	return OK;
     
 }

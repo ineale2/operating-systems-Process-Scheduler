@@ -10,13 +10,20 @@ syscall	kill(
 	  pid32		pid		/* ID of process to kill	*/
 	)
 {
-	intmask	mask;			/* Saved interrupt mask		*/
+	intmask	mask;				/* Saved interrupt mask		*/
 	struct	procent *prptr;		/* Ptr to process's table entry	*/
-	int32	i;			/* Index into descriptors	*/
+	struct	procent *cprptr;	/* Ptr to current processes's table entry	*/
+	int32	i;					/* Index into descriptors	*/
 
 	mask = disable();
 	if (isbadpid(pid) || (pid == NULLPROC)
 	    || ((prptr = &proctab[pid])->prstate) == PR_FREE) {
+		restore(mask);
+		return SYSERR;
+	}
+	cprptr = &proctab[currpid];
+	//Only allow non-root users to kill if uid matches
+	if( (cprptr->uid != ROOT) && (cprptr->uid != prptr->uid) ){
 		restore(mask);
 		return SYSERR;
 	}

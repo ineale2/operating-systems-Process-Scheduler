@@ -197,6 +197,7 @@ static	void	sysinit()
 		prptr->prev_exp_burst = 0;
 		prptr->sched_alg = 0; 
 		prptr->accumFlag = 0;
+		prptr->uid = ROOT;
 	}
 
 	/* Initialize the Null process entry */	
