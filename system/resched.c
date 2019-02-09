@@ -193,8 +193,32 @@ pid32 schedulerSRT(void){
 //Returns the pid of the next process to schedule under the TSS algorithim
 pid32 schedulerTSS(void){
 //	XDEBUG_KPRINTF("In schedulerTSS... ");
-	return 0;
+	pid32 newPID = 0; 							//process to schedule
+	struct procent* prptr = &proctab[currpid]; 	//pointer to process table entry of current process
+
+	//Categorize current process as IO bound or CPU bound by looking at time remaining in preempt
+	if(preempt  == 0){
+		prptr->tss_type = CPU_BOUND;
+	}
+	else{
+		prptr->tss_type = IO_BOUND; 
+	}
+	//Assign priority and quantum to process
+	assignTimes(prptr);
+
+	//Reinsert into ready queue if necessary 
+	
+	//Select next process from ready queue based on priority
+
+
+	return newPID;
 } 
+
+void assignTimes(struct procent* prptr){
+	
+	prptr->prprio =  		
+	prptr->next_quantum = 
+}
 
 //Computes and assigns the burst time of the process specified in the argument
 void computeBurst(pid32 pid){

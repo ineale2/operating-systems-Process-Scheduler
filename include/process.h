@@ -16,7 +16,12 @@
 #define XDEBUG_KPRINTF(...)
 #endif
 
+/* User ID constants */
 #define ROOT 0
+
+/* TSS Scheduler constants */
+#define IO_BOUND  = 0;
+#define CPU_BOUND = 1;
 
 /* Maximum number of processes in the system */
 
