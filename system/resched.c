@@ -30,12 +30,15 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	bool8 schedSRT = agingSched();
 	XDEBUG_KPRINTF("schedSRT: %d\n",schedSRT);
 	pid32 newPID = 0;
+	schedSRT = 1;
+	XDEBUG_KPRINTF("overwriting schedSRT\n");
 	if(schedSRT){
 		//Call the SRT scheduler and then schedule the process it returns
 		newPID = schedulerSRT(); 	
 	}
 	else{
 		//Call the TSS scheduler and then schedule the process is returns
+		XDEBUG_KPRINTF("ERR: CALLING TSSCHED\n");
 		newPID = schedulerTSS();
 	}
 	//If we are rescheduling the same process, do nothing.
@@ -61,13 +64,13 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	
 	//Loop until next element is the tail 
 	XDEBUG_KPRINTF("readylist: before getitem()\n");
-	printReadyList();
+	printReadyList(readylist);
 
 	getitem(newPID);
 
 	XDEBUG_KPRINTF("\n\n");
 	XDEBUG_KPRINTF("readylist: after  getitem()\n");
-	printReadyList();
+	printReadyList(readylist);
 	XDEBUG_KPRINTF("============================================\n");
 	/* Force context switch to the new process */
 	currpid = newPID;
@@ -126,10 +129,6 @@ bool8 agingSched(void){
 	while(curr != queuetail(readylist)){
 		//Note that the index into queuetab IS the PID
 		//Count number of processes in each group, except the current process
-		XDEBUG_KPRINTF("curr: %d ", curr);
-		XDEBUG_KPRINTF(" sched_alg: %d ", proctab[curr].sched_alg);
-		XDEBUG_KPRINTF(" state: %d ", proctab[curr].prstate);
-		XDEBUG_KPRINTF(" name %s\n",  proctab[curr].prname);  
 		if(proctab[curr].sched_alg == SRTIME  && curr != NULLPROC && curr != currpid){
 			sumSRT++;
 		}
@@ -138,6 +137,22 @@ bool8 agingSched(void){
 		}
 		curr = queuetab[curr].qnext;
 	}
+	
+/*
+	curr = firstid(readylistTSS);
+	while(curr != queuetail(readylistTSS)){
+		//Note that the index into queuetab IS the PID
+		//Count number of processes in each group, except the current process
+		if(proctab[curr].sched_alg == SRTIME  && curr != NULLPROC && curr != currpid){
+			sumSRT++;
+		}
+		if(proctab[curr].sched_alg == TSSCHED && curr != NULLPROC && curr != currpid){
+			sumTSS++;
+		}
+		curr = queuetab[curr].qnext;
+	}
+*/
+	
 	XDEBUG_KPRINTF("Counted: %d SRT and %d TSS\n",sumSRT, sumTSS);	
 	//Set process group priority of current process to its default value
 	if(proctab[currpid].sched_alg == SRTIME){
@@ -220,9 +235,9 @@ void computeBurst(pid32 pid){
 		preempt, proctab[pid].prstate, QUANTUM, proctab[pid].accumFlag, proctab[pid].prev_burst);
 }
 
-void printReadyList(void){
-	qid16 curr = firstid(readylist);
-	while(curr != queuetail(readylist)){
+void printReadyList(qid16 list){
+	qid16 curr = firstid(list);
+	while(curr != queuetail(list)){
 		XDEBUG_KPRINTF("curr: %d ", curr);
 		XDEBUG_KPRINTF(" sched_alg: %d ", proctab[curr].sched_alg);
 		XDEBUG_KPRINTF(" state: %d ", proctab[curr].prstate);
@@ -238,23 +253,24 @@ void printProcTab(int print){
 		char *pstate[]	= {		/* names for process states	*/
 			"free ", "curr ", "ready", "recv ", "sleep", "susp ",
 				"wait ", "rtime"};
-		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s\n",
+		char *group[] = {"SRT", "TSS"};
+		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s %5s\n",
 			   "Pid", "Name", "State", "Prio", "Ppid", "Stack Base",
-			   "Stack Ptr", "Stack Size", "burst", "expB", "uid");
+			   "Stack Ptr", "Stack Size", "burst", "expB", "uid", "group");
 
-		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s\n",
+		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s %5s\n",
 			   "---", "----------------", "-----", "----", "----",
-			   "----------", "----------", "----------", "-----", "----", "---");
+			   "----------", "----------", "----------", "-----", "----", "---", "-----");
 		for (i = 0; i < NPROC; i++) {
 			prptr = &proctab[i];
 			if (prptr->prstate == PR_FREE) {  /* skip unused slots	*/
 				continue;
 			}
-			kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %8d %5d %4d %3d\n",
+			kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %8d %5d %4d %3d %5s\n",
 				i, prptr->prname, pstate[(int)prptr->prstate],
 				prptr->prprio, prptr->prparent, prptr->prstkbase,
 				prptr->prstkptr, prptr->prstklen, prptr->prev_burst,
-				prptr->prev_exp_burst, prptr->uid);
+				prptr->prev_exp_burst, prptr->uid, group[(int)prptr->sched_alg]);
 		}
 	}
 }

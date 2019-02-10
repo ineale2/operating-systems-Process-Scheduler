@@ -75,8 +75,10 @@ void	nulluser()
 		(uint32)&data, (uint32)&ebss - 1);
 
 	/* Enable interrupts */
-
+	printProcTab(XDEBUG);
+	XDEBUG_KPRINTF("before enable\n");
 	enable();
+	XDEBUG_KPRINTF("after enable\n");
 
 	/* Initialize the network stack and start processes */
 
@@ -195,7 +197,7 @@ static	void	sysinit()
 		prptr->prprio = 0;
 		prptr->prev_burst = 0;
 		prptr->prev_exp_burst = 0;
-		prptr->sched_alg = 0; 
+		prptr->sched_alg = SRTIME; 
 		prptr->accumFlag = 0;
 		prptr->uid = ROOT;
 	}
@@ -209,7 +211,7 @@ static	void	sysinit()
 	prptr->prstkbase = getstk(NULLSTK);
 	prptr->prstklen = NULLSTK;
 	prptr->prstkptr   = 0;
-	prptr->sched_alg  = TSSCHED;
+	prptr->sched_alg  = SRTIME;
 	currpid = NULLPROC;
 	
 	/* Initialize semaphores */
@@ -226,9 +228,13 @@ static	void	sysinit()
 	bufinit();
 
 	/* Create a ready list for processes */
-
+	XDEBUG_KPRINTF("before ready list init\n");
 	readylist = newqueue();
-
+	readylistTSS = newqueue();
+	XDEBUG_KPRINTF("after queue init\n");
+	XDEBUG_KPRINTF("rL: head = %d tail = %d badqid = %d\n", readylist, readylist + 1, isbadqid(readylist));
+	XDEBUG_KPRINTF("rLTSS: h = %d t = %d badqid = %d\n", readylistTSS, readylistTSS + 1, isbadqid(readylistTSS));
+	XDEBUG_KPRINTF("max queues: %d\n", NQENT);
 	/* Initialize the real time clock */
 
 	clkinit();

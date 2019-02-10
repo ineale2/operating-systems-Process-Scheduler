@@ -2,7 +2,7 @@
 
 /* Helpful control macros for debugging and printing */
 #define XTEST		1
-#define XDEBUG 		0
+#define XDEBUG 		1
 
 #if XTEST
 #define XTEST_KPRINTF(...) kprintf(__VA_ARGS__)
