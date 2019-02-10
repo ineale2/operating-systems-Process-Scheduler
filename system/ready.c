@@ -25,7 +25,7 @@ status	ready(
 	prptr->prstate = PR_READY;
 	if(prptr->sched_alg == SRTIME){
 		insert(pid, readylistSRT, prptr->EB);
-	{
+	}
 	else{
 		insert(pid, readylistTSS, prptr->prprio);
 	}

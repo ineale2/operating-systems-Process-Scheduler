@@ -2,7 +2,7 @@
 
 /* Helpful control macros for debugging and printing */
 #define XTEST		1
-#define XDEBUG 		0
+#define XDEBUG 		1
 
 #if XTEST
 #define XTEST_KPRINTF(...) kprintf(__VA_ARGS__)
@@ -20,8 +20,8 @@
 #define ROOT 0
 
 /* TSS Scheduler constants */
-#define IO_BOUND  = 0;
-#define CPU_BOUND = 1;
+#define IO_BOUND    0 
+#define CPU_BOUND   1 
 
 /* Maximum number of processes in the system */
 
@@ -77,12 +77,13 @@ struct procent {		/* Entry in the process table		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
 	/* Lab 1 Variables*/
 	uint32  EB; 		/* Expected burst E(n+1) */
-	uint32 	prev_burst; /*Burst time from last time process was scheduled*/
-	uint32  sched_alg;	/*Scheduling algorithim for this process: use macros TSSCHED and SRTIME*/
+	uint32  prev_EB; 	/* Previous expected burst */
+	uint32 	prev_burst; /* Burst time from last time process was scheduled*/
+	uint32  sched_alg;	/* Scheduling algorithim for this process: use macros TSSCHED and SRTIME*/
 	uint32  accumFlag;  /* Set if the process has not yet yieled CPU. Used for burst time computation */
 	int		uid; 		/* process user id */
 	uint32  tss_type; 	/* CPU_BOUND or IO_BOUND process */
-	uint32  nx_quantum  /* Next quantum when scheduled */ 
+	uint32  nx_quantum; /* Next quantum when scheduled */ 
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

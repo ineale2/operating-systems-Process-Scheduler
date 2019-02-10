@@ -15,7 +15,8 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	struct procent *ptnew;	/* Ptr to table entry for new process	*/
 
 	/* If rescheduling is deferred, record attempt and return */
-	XDEBUG_KPRINTF("============================================\n");
+	XDEBUG_KPRINTF("============== RESCHED CALLED =================\n");
+	XDEBUG_KPRINTF("currpid = %d preempt = %d prstate = %d\n", currpid, preempt, proctab[currpid].prstate);
 	printProcTab(XDEBUG);
 	if (Defer.ndefers > 0) {
 		Defer.attempt = TRUE;
@@ -25,18 +26,18 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	/* Point to process table entry for the current (old) process */
 	ptold = &proctab[currpid];
 
-	
 	/* Call aging schedule to determine which group to schedule */
-	bool8 schedSRT = agingSched();
+	bool8 sched = agingSched();
 
 	/* Insert current process into the correct ready list, if necessary */
 	insertCurrProc();
 
 	pid32 newPID = 0;
-	if(schedSRT){
+	if(sched == SRTIME){
 		//Call the SRT scheduler and then schedule the process it returns
 		newPID = dequeue(readylistSRT); 
 		preempt = QUANTUM;
+	}
 	else{
 		//Call the TSS scheduler and then schedule the process is returns
 		newPID = dequeue(readylistTSS);
@@ -45,6 +46,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	//If we are rescheduling the same process, do nothing.
 	if(newPID == currpid){
 		ptold->prstate = PR_CURR; /* Reset state */
+		XDEBUG_KPRINTF("Early return: scheduling same process\n");
 		return;
 	}
 	XDEBUG_KPRINTF("Scheduling %d\n", newPID);
@@ -100,6 +102,8 @@ bool8 agingSched(void){
 	uint32 sumTSS = 0;
 	qid16 curr = firstid(readylistTSS);
 	
+	XDEBUG_KPRINTF("TSS Ready List:\n");
+	printReadyList(readylistTSS);
 	//Loop until next element is the tail 
 	while(curr != queuetail(readylistTSS)){
 		//Note that the index into queuetab IS the PID
@@ -109,6 +113,8 @@ bool8 agingSched(void){
 		curr = queuetab[curr].qnext;
 	}
 	
+	XDEBUG_KPRINTF("\n\nSRT Ready List:\n");
+	printReadyList(readylistSRT);
 	curr = firstid(readylistSRT);
 	while(curr != queuetail(readylistSRT)){
 		if(curr != NULLPROC && curr != currpid){
@@ -123,6 +129,12 @@ bool8 agingSched(void){
 	}
 	else{
 		grp_pri.TSS_pri = grp_pri.TSS_init_pri;
+	}
+	//If both counts are zero, but the null proess is in one of the ready lists. 
+	if(sumSRT == 0 && sumTSS == 0){
+		//Want to schedule the null process
+		XDEBUG_KPRINTF("Null proc scheduling currpid =  %d!\n",currpid);
+		return proctab[currpid].sched_alg;
 	}
 
 	//If any of the groups is empty, then schedule the other group. 
@@ -145,7 +157,7 @@ bool8 agingSched(void){
 void insertCurrProc(void){
 	struct procent *ptold = &proctab[currpid];
 	/* Only insert the process if it should remain eligible */
-	
+	XDEBUG_KPRINTF("insertCurrProc...\n");	
 	/* Decide which ready list to insert it into */
 	if(ptold->sched_alg == SRTIME){
 		//Compute the burst time of the process
@@ -154,6 +166,7 @@ void insertCurrProc(void){
 			return;
 		}
 		//Insert into SRT ready list
+		XDEBUG_KPRINTF("inserting PID %d into SRT ready list. EB = %d\n", currpid, ptold->EB);
 		insert(currpid, readylistSRT, ptold->EB);
 	}
 	else{ //TSSCHED
@@ -163,6 +176,7 @@ void insertCurrProc(void){
 			return;
 		}
 		//Insert into the TSS ready list
+		XDEBUG_KPRINTF("inserting PID %d into TSS ready list. pri = %d\n", currpid, ptold->prprio);
 		insert(currpid, readylistTSS, ptold->prprio);
 	}
 
@@ -174,10 +188,12 @@ void insertCurrProc(void){
 void assignTimes(struct procent* prptr){
 	//Categorize current process as IO bound or CPU bound by looking at time remaining in preempt
 	if(preempt  <= 0){ 
+		XDEBUG_KPRINTF("assignTimes: CPU_BOUND\n"); 
 		prptr->tss_type = CPU_BOUND;
 	}
 	else{
 		prptr->tss_type = IO_BOUND; 
+		XDEBUG_KPRINTF("assignTimes: IO_BOUND\n"); 
 	}
 	//Index into tsd_tab is the processes old priority
 	struct tsd_ent* tsdPtr = &tsd_tab[prptr->prprio];
@@ -189,12 +205,16 @@ void assignTimes(struct procent* prptr){
 		prptr->prprio = tsdPtr->ts_slpret;
 	}
 	prptr->nx_quantum = tsdPtr->ts_quantum;
+	XDEBUG_KPRINTF("assignTimes: nx_quantum = %d, pri = %d\n", prptr->nx_quantum, prptr->prprio);
 }
 
 //Computes the burst time of process and then predicts the next burst
 void computeBurst(struct procent* prptr){
-	XDEBUG_KPRINTF("computeBurst:: preempt = %d, prstate = %d, quantum = %d, accumFlg = %d, burst = %d\n",
-		preempt, prptr->.prstate, QUANTUM, prptr->accumFlag, prptr->prev_burst);
+	char *pstate[]	= {		/* names for process states	*/
+		"free ", "curr ", "ready", "recv ", "sleep", "susp ",
+		"wait ", "rtime"};
+	XDEBUG_KPRINTF("computeBurst:: preempt = %d, prstate = %s, quantum = %d, accumFlg = %d, burst = %d\n",
+		preempt, pstate[(int)prptr->prstate], QUANTUM, prptr->accumFlag, prptr->prev_burst);
 	//If the process has not yet yielded the CPU, then accumulate burst
 	if(prptr->accumFlag == 1){
 		prptr->prev_burst += QUANTUM - preempt;
@@ -211,12 +231,14 @@ void computeBurst(struct procent* prptr){
 		prptr->accumFlag = 0;
 	}
 	
-	//Only compute the expected burst (EB) if the process has yielded the CPU
+	prptr->EB = ALPHA*prptr->prev_burst + (1-ALPHA)*prptr->prev_EB;
+		
+	//Only reassign prev_EB if the process has yielded the CPU
 	if(prptr->accumFlag == 0){
-		prptr->EB = ALPHA*prptr->prev_burst + (1-ALPHA)*prptr->EB;		
+		prptr->prev_EB = prptr->EB;
 	}
-	XDEBUG_KPRINTF("computeBurst:: preempt = %d, prstate = %d, quantum = %d, accumFlg = %d, burst = %d\n",
-		preempt, prptr->prstate, QUANTUM, prptr->accumFlag, prptr->prev_burst);
+	XDEBUG_KPRINTF("computeBurst:: accumFlag = %d, burst = %d, prev_EB = %d, EB = %d\n",
+		prptr->accumFlag, prptr->prev_burst, prptr->prev_EB, prptr->EB);
 }
 
 void printReadyList(qid16 list){
@@ -225,6 +247,7 @@ void printReadyList(qid16 list){
 		XDEBUG_KPRINTF("curr: %d ", curr);
 		XDEBUG_KPRINTF(" sched_alg: %d ", proctab[curr].sched_alg);
 		XDEBUG_KPRINTF(" state: %d ", proctab[curr].prstate);
+		XDEBUG_KPRINTF(" key: %d ", queuetab[curr].qkey);
 		XDEBUG_KPRINTF(" name %s\n",  proctab[curr].prname);  
 		curr = queuetab[curr].qnext;
 	}
@@ -237,23 +260,24 @@ void printProcTab(int print){
 		char *pstate[]	= {		/* names for process states	*/
 			"free ", "curr ", "ready", "recv ", "sleep", "susp ",
 				"wait ", "rtime"};
-		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s\n",
+		char *group[] = {"SRTIME ", "TSSCHED"};
+		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s %9s\n",
 			   "Pid", "Name", "State", "Prio", "Ppid", "Stack Base",
-			   "Stack Ptr", "Stack Size", "burst", "expB", "uid");
+			   "Stack Ptr", "Stack Size", "burst", "expB", "uid", "sched_alg");
 
-		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s\n",
+		kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %5s %4s %3s %9s\n",
 			   "---", "----------------", "-----", "----", "----",
-			   "----------", "----------", "----------", "-----", "----", "---");
+			   "----------", "----------", "----------", "-----", "----", "---", "---------");
 		for (i = 0; i < NPROC; i++) {
 			prptr = &proctab[i];
 			if (prptr->prstate == PR_FREE) {  /* skip unused slots	*/
 				continue;
 			}
-			kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %8d %5d %4d %3d\n",
+			kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %8d %5d %4d %3d %9s\n",
 				i, prptr->prname, pstate[(int)prptr->prstate],
 				prptr->prprio, prptr->prparent, prptr->prstkbase,
 				prptr->prstkptr, prptr->prstklen, prptr->prev_burst,
-				prptr->prev_exp_burst, prptr->uid);
+				prptr->prev_EB, prptr->uid, group[(int)prptr->sched_alg]);
 		}
 	}
 }

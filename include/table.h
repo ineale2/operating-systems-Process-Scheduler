@@ -77,11 +77,3 @@ struct tsd_ent tsd_tab[DTABSIZE] = {
 {20, 49, 59}
 };
 
-int main(){
-    int LEVEL;
-    printf("ts_quantum\tts_tqexp\tts_slpret\n");
-    for(LEVEL=0; LEVEL < DTABSIZE; LEVEL++){
-        printf("%d\t\t%d\t\t%d\n", tsd_tab[LEVEL].ts_quantum, tsd_tab[LEVEL].ts_tqexp, tsd_tab[LEVEL].ts_slpret);
-    }
-    return 0;
-}
