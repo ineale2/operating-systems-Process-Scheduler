@@ -75,11 +75,14 @@ struct procent {		/* Entry in the process table		*/
 	umsg32	prmsg;		/* Message sent to this process		*/
 	bool8	prhasmsg;	/* Nonzero iff msg is valid		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
+	/* Lab 1 Variables*/
+	uint32  EB; 		/* Expected burst E(n+1) */
 	uint32 	prev_burst; /*Burst time from last time process was scheduled*/
-	uint32 	prev_exp_burst; /*Expected burst time from last time process was scheduled */
 	uint32  sched_alg;	/*Scheduling algorithim for this process: use macros TSSCHED and SRTIME*/
 	uint32  accumFlag;  /* Set if the process has not yet yieled CPU. Used for burst time computation */
 	int		uid; 		/* process user id */
+	uint32  tss_type; 	/* CPU_BOUND or IO_BOUND process */
+	uint32  nx_quantum  /* Next quantum when scheduled */ 
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

@@ -194,10 +194,12 @@ static	void	sysinit()
 		prptr->prstkbase = NULL;
 		prptr->prprio = 0;
 		prptr->prev_burst = 0;
-		prptr->prev_exp_burst = 0;
-		prptr->sched_alg = 0; 
+		prptr->EB = 0;
+		prptr->sched_alg = SRTIME; 
 		prptr->accumFlag = 0;
 		prptr->uid = ROOT;
+		prptr->tss_type = IO_BOUND;
+		prptr->nx_quantum = QUANTUM;
 	}
 
 	/* Initialize the Null process entry */	
@@ -227,7 +229,8 @@ static	void	sysinit()
 
 	/* Create a ready list for processes */
 
-	readylist = newqueue();
+	readylistTSS = newqueue();
+	readylistSRT = newqueue();
 
 	/* Initialize the real time clock */
 

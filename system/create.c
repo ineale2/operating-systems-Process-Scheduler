@@ -51,6 +51,11 @@ pid32	create(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
+	prptr->EB = 0;
+	prptr->prev_burst = 0;
+	prptr->accumFlag = 0;
+	prptr->tss_type = IO_BOUND;
+	prptr->nx_quantum = QUANTUM;
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;
@@ -59,6 +64,7 @@ pid32	create(
 
 	/* New process inhereits calling process uid */
 	prptr->uid = proctab[currpid].uid;
+
 
 	/* Initialize stack as if the process was called		*/
 

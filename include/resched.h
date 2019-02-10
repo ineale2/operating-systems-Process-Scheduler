@@ -36,14 +36,13 @@ extern  struct  groupPriority grp_pri;
 //returns true to schedule SRT, false to schedule TSS
 bool8 agingSched(void);
 
-//Returns the pid of the next process to schedule under the TSS algorithim
-pid32 schedulerSRT(void);
-
-//Returns the pid of the next process to schedule under the TSS algorithim
-pid32 schedulerTSS(void);
-
 //Computes and assigns the burst time of the process specified in the argument
-void computeBurst(pid32);
+void computeBurst(struct procent*);
 
-void printReadyList(void);
+void insertCurrProc(void);
+
+//Assign next priority and quantum based on current priority
+void assignTimes(struct procent*);
+
+void printReadyList(qid16);
 void printProcTab(int);
