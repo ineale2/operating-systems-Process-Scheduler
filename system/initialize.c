@@ -75,18 +75,15 @@ void	nulluser()
 		(uint32)&data, (uint32)&ebss - 1);
 
 	/* Enable interrupts */
-	printProcTab(XDEBUG);
-	XDEBUG_KPRINTF("before enable interrupts\n");
+	XDEBUG_KPRINTF("enabling interrupts...\n");
 	enable();
-
+	XDEBUG_KPRINTF("after enable \n");
 	/* Initialize the network stack and start processes */
 
-	XDEBUG_KPRINTF("net init\n");
 	net_init();
 
 	/* Create a process to finish startup and start main */
 
-	XDEBUG_KPRINTF("before startup\n");
 	resume(create((void *)startup, INITSTK, SRTIME, INITPRIO,
 					"Startup process", 0, NULL));
 
@@ -94,7 +91,6 @@ void	nulluser()
 	/*  something to run when no other process is ready to execute)	*/
 
 	while (TRUE) {
-		XDEBUG_KPRINTF("nullproc halting\n");
 		/* Halt until there is an external interrupt */
 
 		asm volatile ("hlt");
@@ -163,15 +159,12 @@ static	void	sysinit()
 	kprintf("\n%s\n\n", VERSION);
 
 	/* Initialize the interrupt vectors */
-	XDEBUG_KPRINTF("sysinit: int vec\n");
 	initevec();
 	
 	/* Initialize free memory list */
 	
-	XDEBUG_KPRINTF("sysinit: meminit()\n");
 	meminit();
 
-	XDEBUG_KPRINTF("sysinit: after meminit\n");
 	/* Initialize system variables */
 
 	/* Count the Null process as the first process in the system */
@@ -236,7 +229,7 @@ static	void	sysinit()
 
 	XDEBUG_KPRINTF("sysinit: creating ready lists\n");
 	readylistTSS = newqueue();
-	readylistSRT = newqueue();
+	readylistSRT = newqueueA();
 	XDEBUG_KPRINTF("readylistTSS = %d, readyListSRT = %d\n", readylistTSS, readylistSRT);
 
 	/* Initialize the real time clock */
@@ -246,7 +239,6 @@ static	void	sysinit()
 	for (i = 0; i < NDEVS; i++) {
 		init(i);
 	}
-	XDEBUG_KPRINTF("returning from sysinit\n");
 	return;
 }
 

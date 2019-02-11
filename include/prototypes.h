@@ -165,6 +165,9 @@ extern	int32	sizmem(void);
 /* in file insert.c */
 extern	status	insert(pid32, qid16, int32);
 
+/* in file insertA.c */ 
+extern	status	insertA(pid32, qid16, int32);
+
 /* in file insertd.c */
 extern	status	insertd(pid32, qid16, int32);
 
@@ -325,6 +328,9 @@ extern	devcall	namopen(struct dentry *, char *, char *);
 
 /* in file newqueue.c */
 extern	qid16	newqueue(void);
+
+/* in file newqueueA.c */
+extern	qid16	newqueueA(void);
 
 /* in file open.c */
 extern	syscall	open(did32, char *, char *);

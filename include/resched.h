@@ -34,7 +34,7 @@ extern	struct	defer	Defer;
 extern  struct  groupPriority grp_pri;
 //agingSched implements the agingScheduler algorithim and selects one of the two groups (SRT or TSS) to schedule
 //returns true to schedule SRT, false to schedule TSS
-bool8 agingSched(void);
+int16 agingSched(void);
 
 //Computes and assigns the burst time of the process specified in the argument
 void computeBurst(struct procent*);

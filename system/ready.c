@@ -24,7 +24,7 @@ status	ready(
 	prptr = &proctab[pid];
 	prptr->prstate = PR_READY;
 	if(prptr->sched_alg == SRTIME){
-		insert(pid, readylistSRT, prptr->EB);
+		insertA(pid, readylistSRT, prptr->EB);
 	}
 	else{
 		insert(pid, readylistTSS, prptr->prprio);
