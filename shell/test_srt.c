@@ -7,13 +7,13 @@ int test_lab1(void){
 	kprintf("================== TEST LAB1 ======================\n");
 	
 	//Create 3 processes with SRT
-	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc1", 0));
-	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc2", 0));
-	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc3", 0));
+	resume(create(cpu_bound, 1024, SRTIME, 50, "proc1", 0));
+	resume(create(cpu_bound, 1024, SRTIME, 50, "proc2", 0));
+	resume(create(cpu_bound, 1024, SRTIME, 50, "proc3", 0));
 	
-	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc4", 0));
-	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc5", 0));
-	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc6", 0));
+	resume(create(io_bound, 1024, SRTIME, 50, "proc4", 0));
+	resume(create(io_bound, 1024, SRTIME, 50, "proc5", 0));
+	resume(create(io_bound, 1024, SRTIME, 50, "proc6", 0));
 	//Now periodically print the process list
 /*	while(1){
 		printProcTab(1);
@@ -34,13 +34,20 @@ void cpu_bound(void){
 				p[k] = 42*j;
 			}	
 		}
-		kprintf("pid: %2d :: loop = %2d :: prempt = %4d\n", getpid(), i, preempt);
+		kprintf("CPU %2d:%2d:%4d\n", getpid(), i, preempt);
 	}
-	kprintf("pid %d finished!\n", getpid());
+	kprintf("CPU %2d DONE\n", getpid());
 }
 
 void io_bound(void){
-
+	int i, j;
+	for(i = 0; i < 10; i++){
+		for(j = 0; j < 2; j++){
+			sleepms(500);
+		}
+		kprintf("IO %2d:%2d\n", getpid(), i);
+	}
+	kprintf("IO %2d DONE\n", getpid());
 }
 
 void test_uid(void){
