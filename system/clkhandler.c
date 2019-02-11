@@ -46,7 +46,7 @@ void	clkhandler(
 	/*   remaining time reaches zero			     */
 
 	if((--preempt) <= 0) {
-	  	preempt = QUANTUM; //NOTE: This line commented out in lab1 so that preempt can be used to determine when clkhandler calls resched.
+//	  	preempt = QUANTUM; //NOTE: This line commented out in lab1 so that preempt can be used to determine when clkhandler calls resched.
 		resched();
 	}
 }

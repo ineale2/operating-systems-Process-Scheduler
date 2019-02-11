@@ -37,7 +37,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	if(sched == SRTIME){
 		//Call the SRT scheduler and then schedule the process it returns
 		newPID = dequeue(readylistSRT); 
-		//preempt = QUANTUM;
+		preempt = QUANTUM;
 		XDEBUG_KPRINTF("Got %d from SRT ready list\n", newPID);
 	}
 	else{
@@ -139,7 +139,7 @@ int16 agingSched(void){
 	if(sumSRT == 0 && sumTSS == 0){
 		//Want to schedule the null process
 		XDEBUG_KPRINTF("aging sched early return, Null proc scheduling currpid =  %d!\n",currpid);
-		return proctab[currpid].sched_alg;
+		return proctab[NULLPROC].sched_alg;
 	}
 
 	//If any of the groups is empty, then schedule the other group. 

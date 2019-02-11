@@ -13,7 +13,7 @@ process	main(void)
 	XTEST_KPRINTF("Spawning new shell with PID = %d...\n", pid);
 	resume(pid);
 
-	resume(create(test_uid, 8192, SRTIME, 50, "test_uid", 0));
+	resume(create(test_uid, 8192, TSSCHED, 50, "test_uid", 0));
 	/* Wait for shell to exit and recreate it */
 /*
 	recvclr();
