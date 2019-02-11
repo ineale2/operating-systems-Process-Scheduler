@@ -4,13 +4,16 @@
 int test_lab1(void){
 	
 	sleepms(3000);
-	kprintf("==================TEST SRT======================\n");
+	kprintf("================== TEST LAB1 ======================\n");
 	
 	//Create 3 processes with SRT
 	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc1", 0));
-	//resume(create(cpu_bound, 1024, TSSCHED, 20, "proc2", 0));
-	//resume(create(cpu_bound, 1024, TSSCHED, 20, "proc3", 0));
+	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc2", 0));
+	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc3", 0));
 	
+	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc4", 0));
+	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc5", 0));
+	resume(create(cpu_bound, 1024, TSSCHED, 20, "proc6", 0));
 	//Now periodically print the process list
 /*	while(1){
 		printProcTab(1);
@@ -19,13 +22,34 @@ int test_lab1(void){
 	return OK;
 }
 
+void cpu_bound(void){
+	int i, j, k;
+	uint32 len = 1024;
+	uint32* p = (uint32*) getmem(len*sizeof(uint32));
+	
+	for(i = 0; i < 10; i++){
+		for(j = 0; j < 5000; j++){
+			//Write into memory junk
+			for(k = 0; k < len; k++){
+				p[k] = 42*j;
+			}	
+		}
+		kprintf("pid: %2d :: loop = %2d :: prempt = %4d\n", getpid(), i, preempt);
+	}
+	kprintf("pid %d finished!\n", getpid());
+}
+
+void io_bound(void){
+
+}
+
 void test_uid(void){
 	//This process is from main... should have root. 
 	kprintf("=================== TEST UID ====================\n");
 	kprintf("test_uid->uid = %d\n", proctab[currpid].uid);
 	
 	//Create a process, check that it has uid == ROOT
-	pid32 p1 = create(userProc1, 1024, TSSCHED, 20, "p1", 0);
+	pid32 p1 = create(userProc1, 1024, SRTIME, 20, "p1", 0);
 	if(p1 == SYSERR) kprintf("err0 create\n");
 	if(proctab[p1].uid != proctab[currpid].uid) kprintf("err1 create\n");
 	//Resume the process... check return message
@@ -60,7 +84,7 @@ void test_uid(void){
 	if(SYSERR == kill(p2)) kprintf("err8 kill\n");
 
 	//Create a process with uid = 3
-	pid32 p3 = create(userProc3, 1024, TSSCHED, 20, "p3", 0);
+	pid32 p3 = create(userProc3, 1024, SRTIME, 20, "p3", 0);
 	if(SYSERR == resume(p3)) kprintf("err14 resume\n");
 	
 	sleepms(1000);
@@ -109,7 +133,7 @@ void userProc4(pid32 p3){
 	
 	if(SYSERR != resume(p3)) kprintf("err15 resume\n");
 	if(SYSERR != kill(p3)) kprintf("err16 kill\n");
-	resume(create(userProc5, 1024, TSSCHED, 20, "p5", 0));
+	resume(create(userProc5, 1024, SRTIME, 20, "p5", 0));
 }
 
 void userProc5(void){
@@ -117,20 +141,3 @@ void userProc5(void){
 	if(4 != proctab[currpid].uid) kprintf("err17 setuid\n");
 }
 
-void cpu_bound(void){
-	kprintf("CPU BOUND started: pid %d", getpid());
-	int i, j, k;
-	uint32 len = 1024;
-	uint32* p = (uint32*) getmem(len*sizeof(uint32));
-	
-	for(i = 0; i < 10; i++){
-		for(j = 0; j < 1000; j++){
-			//Write into memory junk
-			for(k = 0; k < len; k++){
-				p[k] = 42;
-			}	
-		}
-		kprintf("pid: %d :: loop = %d :: prempt = %d\n", getpid(), i, preempt);
-	}
-	kprintf("pid %d finished!\n", getpid());
-}

@@ -1,4 +1,5 @@
 int test_lab1(void);
+void io_bound(void);
 void test_uid(void);
 void userProc1(void);
 void userProc3(void);
