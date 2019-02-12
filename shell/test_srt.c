@@ -8,12 +8,12 @@ int test_lab1(void){
 	
 	//Create 3 processes with SRT
 	resume(create(cpu_bound, 1024, SRTIME, 50, "proc1", 0));
-	resume(create(cpu_bound, 1024, SRTIME, 50, "proc2", 0));
+	resume(create(cpu_bound, 1024, TSSCHED, 50, "proc2", 0));
 	resume(create(cpu_bound, 1024, SRTIME, 50, "proc3", 0));
 	
-	resume(create(io_bound, 1024, SRTIME, 50, "proc4", 0));
+	resume(create(io_bound, 1024, TSSCHED, 50, "proc4", 0));
 	resume(create(io_bound, 1024, SRTIME, 50, "proc5", 0));
-	resume(create(io_bound, 1024, SRTIME, 50, "proc6", 0));
+	resume(create(io_bound, 1024, TSSCHED, 50, "proc6", 0));
 	//Now periodically print the process list
 /*	while(1){
 		printProcTab(1);
