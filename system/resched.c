@@ -167,6 +167,9 @@ int16 agingSched(void){
 void insertCurrProc(void){
 	struct procent *ptold = &proctab[currpid];
 	/* Only insert the process if it should remain eligible */
+	char *pstate[]	= {		/* names for process states	*/
+		"free ", "curr ", "ready", "recv ", "sleep", "susp ",
+		"wait ", "rtime"};
 	XDEBUG_KPRINTF("insertCurrProc...\n");	
 	/* Decide which ready list to insert it into */
 	if(ptold->sched_alg == SRTIME){
@@ -237,7 +240,7 @@ void computeBurst(struct procent* prptr){
 	}
 
 	//Set flag to begin accumulating if CPU has not been yielded
-	if(preempt > 0 && prptr->prstate == PR_CURR){
+	if(preempt  ==  0 && prptr->prstate == PR_CURR){
 		prptr->accumFlag = 1;
 	}
 	else{
