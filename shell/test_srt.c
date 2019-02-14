@@ -1,5 +1,56 @@
 #include <test_lab1.h>
 #include <xinu.h> 
+#include "shprototypes.h"
+int test_chgprio(void){
+
+	sleep(1);
+
+	kprintf("================== TEST CHGPRIO ======================\n");
+	//Start 2 printer processes 
+	pid32 p1 = create(printer, 1024, TSSCHED,  10, "proc1", 1, 10000);
+	pid32 p2 = create(printer, 1024, TSSCHED,  10, "proc2", 1, 10000);
+	pid32 p3 = create(printer, 1024,  SRTIME,  65, "proc3", 1, 100);
+	pid32 p4 = create(printer, 1024,  SRTIME,  65, "proc4", 1, 100);
+	kprintf("Starting both processes...\n");
+	resume(p1); resume(p2); resume(p3); resume(p4);
+	sleep(2);
+
+	kprintf("TSS ONLY\n");
+	//chgprio for TSS and make sure SRT is blocked
+	chgprio(TSSCHED, 100);
+	sleep(2);
+
+	kprintf("SRT ONLY\n");
+	chgprio(SRTIME, 200);
+	sleepms(300);
+
+	kprintf("BOTH\n");
+	chgprio(SRTIME, 100);
+	sleep(2);
+	kill(p1); kill(p3);
+	kill(p2); kill(p4);
+	if( chgprio(-1, 100) != SYSERR) kprintf("ERR");
+	kprintf("TEST COMPLETE");
+	return OK;
+}
+
+void printer(int loop){
+	struct procent* prptr = &proctab[getpid()];
+	char* group[] = {"SRT", "TSS"};
+	int i, j, k;
+	uint32 len = 1024;
+	uint32* p = (uint32*) getmem(len*sizeof(uint32));
+	
+	for(i = 0; i < 10000; i++){
+		for(j = 0; j < loop; j++){
+			//Write into memory junk
+			for(k = 0; k < len; k++){
+				p[k] = 42*j;
+			}	
+		}
+		kprintf("%3s %s\n", group[(int)prptr->sched_alg], prptr->prname);
+	}
+}
 
 int test_lab1(void){
 	
@@ -7,13 +58,13 @@ int test_lab1(void){
 	kprintf("================== TEST LAB1 ======================\n");
 	
 	//Create 3 processes with SRT
-	resume(create(cpu_bound, 1024, SRTIME, 50, "proc1", 0));
-	resume(create(cpu_bound, 1024, TSSCHED, 50, "proc2", 0));
-	resume(create(cpu_bound, 1024, SRTIME, 50, "proc3", 0));
+	resume(create(io_bound, 1024, TSSCHED, 50, "proc1", 0));
+	resume(create(io_bound, 1024, SRTIME,  50, "proc2", 0));
+	resume(create(io_bound, 1024, TSSCHED, 50, "proc3", 0));
 	
-	resume(create(io_bound, 1024, TSSCHED, 50, "proc4", 0));
-	resume(create(io_bound, 1024, SRTIME, 50, "proc5", 0));
-	resume(create(io_bound, 1024, TSSCHED, 50, "proc6", 0));
+	resume(create(cpu_bound,  1024, SRTIME,  50, "proc4", 0));
+	resume(create(cpu_bound,  1024, TSSCHED, 50, "proc5", 0));
+	resume(create(cpu_bound,  1024, SRTIME,  50, "proc6", 0));
 	//Now periodically print the process list
 /*	while(1){
 		printProcTab(1);

@@ -1,4 +1,6 @@
 int test_lab1(void);
+int test_chgprio(void);
+void printer(int);
 void io_bound(void);
 void test_uid(void);
 void userProc1(void);

@@ -175,12 +175,14 @@ void insertCurrProc(void){
 
 
 void assignTimes(struct procent* prptr){
-	//Categorize current process as IO bound or CPU bound by looking at time remaining in preempt
-	if(preempt  <= 0){ 
-		prptr->tss_type = CPU_BOUND;
+	//Categorize current process as IO bound or CPU bound by process state
+	if(prptr->prstate != PR_CURR){
+		//Yielded CPU 
+		prptr->tss_type = IO_BOUND;
 	}
 	else{
-		prptr->tss_type = IO_BOUND; 
+		//Time slice expired or interupted by higher priority process
+		prptr->tss_type = CPU_BOUND; 
 	}
 	//Index into tsd_tab is the processes old priority
 	struct tsd_ent* tsdPtr = &tsd_tab[prptr->prprio];

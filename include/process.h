@@ -22,6 +22,8 @@
 /* TSS Scheduler constants */
 #define IO_BOUND    0 
 #define CPU_BOUND   1 
+#define MAX_PRI 	59
+#define MIN_PRI		0
 
 /* Maximum number of processes in the system */
 
