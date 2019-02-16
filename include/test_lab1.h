@@ -1,4 +1,5 @@
 int test_lab1(void);
+void test_longRunningProc(void);
 int test_chgprio(void);
 void printer(int);
 void io_bound(void);

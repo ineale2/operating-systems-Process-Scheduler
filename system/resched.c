@@ -200,10 +200,10 @@ void assignTimes(struct procent* prptr){
 void computeBurst(struct procent* prptr){
 	//If the process has not yet yielded the CPU, then accumulate burst
 	if(prptr->accumFlag == 1){
-		prptr->prev_burst += (int16)(QUANTUM - preempt);
+		prptr->prev_burst += (int32)(1000*(QUANTUM - preempt));
 	}
 	else{
-		prptr->prev_burst  = (int16)(QUANTUM - preempt);
+		prptr->prev_burst  = (int32)(1000*(QUANTUM - preempt));
 	}
 
 	//Set flag to begin accumulating if CPU has not been yielded
@@ -214,7 +214,8 @@ void computeBurst(struct procent* prptr){
 		prptr->accumFlag = 0;
 	}
 	
-	prptr->EB = ALPHA*prptr->prev_burst + (1-ALPHA)*prptr->prev_EB;
+	prptr->EB = prptr->prev_burst*7/10 + prptr->prev_EB*3/10;
+	//prptr->EB = ALPHA*prptr->prev_burst + (1-ALPHA)*prptr->prev_EB;
 		
 	//Only reassign prev_EB if the process has yielded the CPU
 	if(prptr->accumFlag == 0){

@@ -14,8 +14,9 @@ process	main(void)
 	resume(pid);
 
 	//resume(create(test_uid, 8192, TSSCHED, 50, "test_uid", 0));
-	resume(create(test_lab1, 8192, TSSCHED, 50, "test_lab1", 0));
+	//resume(create(test_lab1, 8192, TSSCHED, 50, "test_lab1", 0));
 	//resume(create(test_chgprio, 8192, SRTIME, 50, "test_chgprio", 0));
+	resume(create(test_longRunningProc, 8192, SRTIME, 50, "test_LRP", 0));
 	/* Wait for shell to exit and recreate it */
 /*
 	recvclr();

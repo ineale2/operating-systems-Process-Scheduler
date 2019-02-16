@@ -32,16 +32,16 @@ void prl(qid16 list){
 
 	char *group[] = {"SRT","TSS"};
 	qid16 curr = firstid(list);
-	kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %2s %10s %6s %5s %4s\n",
+	kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %8s %10s %6s %5s %4s\n",
 		   "Pid", "Name", "State", "Prio", "Ppid", "Stack Base",
 		   "Stack Ptr", "Stack Size", "EB", "prev_burst", "prevEB", "group", "qkey");
 
-	kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %2s %10s %6s %5s %4s\n",
+	kprintf("%3s %-16s %5s %4s %4s %10s %-10s %10s %8s %10s %6s %5s %4s\n",
 		   "---", "----------------", "-----", "----", "----",
-		   "----------", "----------", "----------", "--", "----------", "------",  "-----","----");
+		   "----------", "----------", "----------", "--------", "----------", "------",  "-----","----");
 	while(curr != queuetail(list)){
 		prptr = &proctab[curr];
-		kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %10d %2d %10d %6d %5s %4d\n",
+		kprintf("%3d %-16s %s %4d %4d 0x%08X 0x%08X %10d %8d %10d %6d %5s %4d\n",
 			curr, prptr->prname, pstate[(int)prptr->prstate],
 			prptr->prprio, prptr->prparent, prptr->prstkbase,
 			prptr->prstkptr, prptr->prstklen, prptr->EB, prptr->prev_burst, prptr->prev_EB,

@@ -1,6 +1,30 @@
 #include <test_lab1.h>
 #include <xinu.h> 
 #include "shprototypes.h"
+void test_longRunningProc(void){
+	sleepms(500); //Let console display output be nice
+
+	kprintf("================== TEST LONGRUNNING PROC =============\n");
+	int i, j, k;
+	uint32 len = 1024;
+	uint32* p = (uint32*) getmem(len*sizeof(uint32));
+	struct procent* prptr = &proctab[currpid]; 
+	for(i = 0; i < 100; i++){
+		for(j = 0; j < 5000; j++){
+			//Write into memory junk
+			for(k = 0; k < len; k++){
+				p[k] = 42*j;
+			}	
+		}
+		kprintf("%d B: %d\n", i, prptr->prev_burst);
+	}
+	kprintf("LRP Complete\n");
+	
+
+
+}
+
+
 int test_chgprio(void){
 
 	sleep(1);
